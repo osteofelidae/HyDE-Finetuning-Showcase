@@ -4,18 +4,9 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="99a5e367-8ca8-467d-8f96-af9a46888dca" name="Changes" comment="Initial commit?">
-      <change afterPath="$PROJECT_DIR$/README.md" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/ml/download_dataset.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/ml/log.txt" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/scrapers/scrape_roblox_engine_docs.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/scrapers/scrape_roblox_scripting_support.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.gitignore" beforeDir="false" afterPath="$PROJECT_DIR$/.gitignore" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/Investigating AI-assisted Roblox game development in programming education.iml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/Investigating AI-assisted Roblox game development in programming education.iml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/misc.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/misc.xml" afterDir="false" />
+    <list default="true" id="99a5e367-8ca8-467d-8f96-af9a46888dca" name="Changes" comment="Final commit">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/ml/llm.py" beforeDir="false" afterPath="$PROJECT_DIR$/src/ml/llm.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/scrapers/scrape_roblox_scripting_docs.py" beforeDir="false" afterPath="$PROJECT_DIR$/src/scrapers/scrape_roblox_scripting_docs.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/README.md" beforeDir="false" afterPath="$PROJECT_DIR$/README.md" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -109,11 +100,20 @@
       <option name="project" value="LOCAL" />
       <updated>1720590285914</updated>
     </task>
-    <option name="localTasksCounter" value="2" />
+    <task id="LOCAL-00002" summary="Final commit">
+      <option name="closed" value="true" />
+      <created>1725505345887</created>
+      <option name="number" value="00002" />
+      <option name="presentableId" value="LOCAL-00002" />
+      <option name="project" value="LOCAL" />
+      <updated>1725505345888</updated>
+    </task>
+    <option name="localTasksCounter" value="3" />
     <servers />
   </component>
   <component name="VcsManagerConfiguration">
     <MESSAGE value="Initial commit?" />
-    <option name="LAST_COMMIT_MESSAGE" value="Initial commit?" />
+    <MESSAGE value="Final commit" />
+    <option name="LAST_COMMIT_MESSAGE" value="Final commit" />
   </component>
 </project>
