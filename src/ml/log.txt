@@ -1,0 +1,640 @@
+====================================================================================================
+
+### Why isn’t the print statement printing the chosen arrays? 
+I’m trying to get the system to print what the Roll() function has chosen, however, regardless of this it doesn’t seem to be printing anything, regardless of how I try to change it… Below you’ll find the code that I have, as well as the array.
+
+Possibly problematic code
+```
+function Roll()
+	local CurrentBestRarity = "Rock"
+	
+	for RarityTier, Chance in OreArray do
+		local NewRoll = Rand:NextNumber()
+		if NewRoll < Chance then
+			if OreArray[CurrentBestRarity] > Chance then
+				CurrentBestRarity = RarityTier
+			end
+		end
+	end
+	return CurrentBestRarity
+end
+
+local result = Roll()
+local spawnBricks = game.Workspace.Spawns:GetChildren()
+local Index = math.random(#spawnBricks)
+local Chosen = spawnBricks[Index]
+
+local FoundLocation = Spawns:FindFirstChild(Chosen.Name)
+
+local function OteSpawn()
+	local IsOccupied = Chosen.Occupied
+	if not IsOccupied then
+		if result == OreArray[1] then
+			print(OreArray[1])
+	
+		if result == OreArray[2] then
+			print(OreArray[2])
+			
+		end
+		end
+	end
+end
+Players.PlayerAdded:Connect(OteSpawn)
+```
+
+The array
+```
+local OreArray = {
+	Rock = 0.35;
+	IronOre = 0.25;
+	GoldOre = 0.1;
+	AzureOre = 0.01;
+}
+```
+
+----------------------------------------------------------------------------------------------------
+A debugging mystery!
+
+Let's investigate what might be going on.
+
+1. The `Roll()` function seems to be functioning correctly, as it iterates through the `OreArray` and returns the chosen rarity.
+2. The `OteSpawn()` function is connected to the `PlayerAdded` event, which means it will be called when a new player joins the game.
+3. Inside `OteSpawn()`, you're checking if the chosen rarity matches the first or second element of the `OreArray`. If it does, you're attempting to display the corresponding value from the array.
+
+However, there are a few potential issues:
+
+* Within the `OteSpawn()` function, you're not actually displaying the values from the array. You're trying to display the keys (`"Rock"`, `"IronOre"`, etc.) instead of the values (0.35, 0.25, etc.). Try changing the print statements to print the corresponding values from the `OreArray`.
+* The `OteSpawn()` function is only called when a new player joins the game. If you want to display the chosen rarity immediately after the roll, you might need to move the `OteSpawn()` call inside the `Roll()` function, or use a different approach to trigger the print statement.
+* Ensure that the `OreArray` is defined and accessible within the scope of the `OteSpawn()` function. If `OreArray` is defined in a different script or module, you might need to pass it as an argument to the `OteSpawn()` function or use a global variable.
+
+Try these suggestions and see if they help resolve the issue!
+====================================================================================================
+
+### Increase FOV to higher than 120? 
+Hello, i saw in the game “The normal Elevator” the fov was extremely high in one segment. now how do i achieve this effect, because the FOV for the camera has a limit of 120. 
+```
+
+----------------------------------------------------------------------------------------------------
+You're looking to expand the field of view (FOV) of your camera in Roblox beyond the default 120 degrees. While the FOV property of the Camera object has a hard limit, there are some creative ways to achieve a wider FOV. Here are some hints to help you get started:
+
+One approach is to create a custom camera script that manipulates the camera's position and orientation to create the illusion of a wider FOV. This might involve adjusting the camera's CFrame, rotation, or even using a custom camera model.
+
+Another strategy is to employ camera tricks like panning, tilting, or using a "dolly" effect to create the illusion of a wider FOV. This could involve moving the camera along a curved path or using a camera model with a unique shape.
+
+You can also use camera effects like distortion, fisheye, or even a "mirror" effect to create a wider FOV. These effects can be achieved using custom camera scripts or by modifying the camera's properties.
+
+Alternatively, you can experiment with different camera types, such as a "follow" camera or a "target" camera, to achieve a wider FOV. These camera types can be used to create a sense of immersion and exploration.
+
+Remember, while you can't directly increase the FOV beyond 120 degrees, you can use creative camera techniques to achieve a similar effect. Good luck, and I hope you find a solution that works for your game!====================================================================================================
+
+### Waves are moving too fast compared to character walkspeed 
+Hello,
+I made a wave system, but when I try to move around, the waves are offset too fast compared to my position. I tried dividing the players position but I want it to be as accurate as possible, so I can’t just divide it by some random number.
+
+Code:
+```
+if not game.Players.LocalPlayer.Character then
+	game.Players.LocalPlayer.CharacterAdded:Wait()
+end
+
+local AssetService = game:GetService("AssetService")
+local RunService = game:GetService("RunService")
+local TweenService = game:GetService("TweenService")
+
+local Object = script.Parent
+local EditableMesh = Instance.new("EditableMesh")
+EditableMesh.Parent = Object
+
+local Player = game.Players.LocalPlayer
+
+local Character = Player.Character
+local CharacterPos = Character.HumanoidRootPart
+Player.CharacterAdded:Connect(function(New)
+	Character = New
+	CharacterPos = Character.HumanoidRootPart
+end)
+
+local tweenInfo = TweenInfo.new(0.1, Enum.EasingStyle.Linear, Enum.EasingDirection.Out)
+
+local Width = 100
+local Height = 100
+
+local Offset = 10
+local WaveSize = .025
+local WaveHeight = 10
+
+local Vertices = {}
+
+for y = 1, Height do
+	local raw = {}
+	for x = 1, Width do
+		local vertexPosition = Vector3.new(x - 1, 0, y - 1) * Offset
+		local vertexId = EditableMesh:AddVertex(vertexPosition)
+		
+		raw[x] = {vertexId, vertexPosition}
+	end
+	Vertices[y] = raw
+end
+
+for y = 1, Height-1 do
+	for x = 1, Width-1 do
+		local vertex1 = Vertices[y][x][1] :: number
+		local vertex2 = Vertices[y+1][x][1] :: number
+		local vertex3 = Vertices[y][x+1][1] :: number
+		local vertex4 = Vertices[y+1][x+1][1] :: number
+		
+		local triangle1 = EditableMesh:AddTriangle(vertex1, vertex2, vertex3)
+		local triangle2  = EditableMesh:AddTriangle(vertex2, vertex4, vertex3)
+	end
+end
+
+while true do
+	local currentTime = os.clock() / 10
+	for y = 1, Height do
+		for x = 1, Width do
+			local vertexId = Vertices[y][x][1] :: number
+			local vertexPosition = Vertices[y][x][2] :: Vector3
+			
+			local newPosition = vertexPosition + Vector3.new(0,WaveHeight,0) * math.noise(
+				vertexPosition.X * WaveSize + currentTime + CharacterPos.Position.X, 
+				vertexPosition.Y * WaveSize + currentTime, 
+				vertexPosition.Z * WaveSize + currentTime + CharacterPos.Position.Z
+			)
+			
+			EditableMesh:SetPosition(vertexId, newPosition)
+		end
+	end
+	Object.Position = Vector3.new(CharacterPos.Position.X - (Offset * Width / 2), Object.Position.Y, CharacterPos.Position.Z - (Offset * Height / 2))
+	task.wait()
+end
+```
+
+----------------------------------------------------------------------------------------------------
+To create a wave system that moves in sync with the player's movement, you need to adjust the wave's offset based on the player's position and speed. This can be achieved by calculating the wave's offset using the player's character's position and velocity.
+
+To do this, consider the player's velocity, as this will help the wave move in sync with the player's movement. Faster players should have a higher frequency, while slower players should have a lower frequency. Additionally, a more accurate method for calculating the wave's offset could be used, such as using the player's position and velocity to determine the offset.
+
+By implementing these adjustments, you should be able to create a wave system that accurately moves in sync with the player's movement.
+
+====================================================================================================
+
+### How would I call upon the function similarly to “if Function = result then” 
+As I’m rather new to scripting, I might require a reminder of how I would go about doing this. As I wish to retrieve a randomized value from the function, how would I do this? I’ve tried doing “If Roll() = Rock then” and this did not work as I wished it to. I’m currently trying to do this as a way to retrieve a randomized result from my array.
+
+----------------------------------------------------------------------------------------------------
+When trying to compare the result of a function call to a value in an if statement in Lua, you need to assign the result to a variable first. This is different from other languages where you can directly compare the result of a function call to a value.
+
+For instance, if you have a function Roll() that returns a randomized value, you can do something like this:
+
+Assign the result of the Roll() function to a variable and then compare that variable to the value you're interested in. Here's an example:
+
+If the result is equal to a certain value, then you can execute some code. If you want to retrieve a randomized value from an array, you can do something similar.
+
+Note that this approach is different from how it works in other languages, where you can directly compare the result of a function call to a value.
+
+====================================================================================================
+
+### Tonumber() with TextBox isn’t detecting text 
+I’ve been trying to make a dummy spawner but when I try the dummy spawns but the stats are not given.
+
+Code:
+
+Server Script
+```
+dummy = game:GetService("ReplicatedStorage"):WaitForChild("Extra").Dummy
+
+
+script.Parent.MouseButton1Click:Connect(function()
+	local plr = script.Parent.Parent.Parent.Parent.Parent
+	task.wait()
+	script.Parent.OnClick:FireClient(plr)
+end)
+
+script.Parent.TransferStuff.OnServerEvent:Connect(function(plr, hp, def, tshirt)
+	local char = workspace:FindFirstChild(plr.Name)
+	task.wait()
+	local newdum = dummy:Clone()
+	print(hp)
+	
+	task.wait()
+	
+	newdum.Parent = workspace
+	newdum.Humanoid.MaxHealth = hp
+	newdum.Humanoid.Health = dummy.Humanoid.MaxHealth
+	newdum.Stats.Defense.Value = def
+	newdum.Torso.TShirt.Texture = tshirt
+	
+	newdum:PivotTo(char.Torso:GetPivot() * CFrame.new(0, 0, -10))
+	
+end)
+```
+
+Local Script
+```
+script.Parent.OnClick.OnClientEvent:Connect(function(plr)
+	
+	script.Parent.ClickSound:Play()
+	
+	local hp = tonumber(script.Parent.Parent.Health.TextBox.Text)
+	local def = tonumber(script.Parent.Parent.Defense.TextBox.Text)
+	local tshirt = tonumber(script.Parent.Parent["T-Shirt"].TextBox.Text)
+	
+	task.wait()
+	
+	script.Parent.TransferStuff:FireServer(plr, hp, def, tshirt)
+	
+end)
+```
+
+----------------------------------------------------------------------------------------------------
+You're having trouble getting the text input from TextBoxes in a LocalScript and sending it to a ServerScript to create a new dummy. Specifically, you're having an issue with the `tonumber()` function not detecting the text input as a number. This can occur when the text input is not a valid number, such as a string or an empty field. To resolve this issue, you should ensure that the text input is a valid number and handle any potential errors that may arise during the conversion process. This can be achieved by using `tonumber()` or `parse()` to convert the text input to a number, and adding error handling to check if the conversion was successful. Additionally, you can use conditional statements to check if the text input is valid before sending it to the ServerScript, and consider using `try` and `catch` blocks to handle any errors that may occur during the conversion process.
+
+====================================================================================================
+
+### Proximity Prompt on Handcuffs
+Hi,
+
+I am trying to make an arrest system that works basically like Jailbreak’s. Instead of using my outdated interact system, I tried ProximityPrompt for the first time. The issue I have with ProximityPrompt is that the prompt appears to everyone, including the criminal himself. The way to proceed to fix that is through local scripts, however I have absolutely no clue on how to even start with that despite my research.
+
+The requirements for the proximity to pop up would be:
+
+    Police Team
+    Has handcuffs equipped
+
+If anyone could give me a quick explanation on how I should go about it, it would be much appreciated.
+
+Thanks in advance!
+
+----------------------------------------------------------------------------------------------------
+A proximity prompt for handcuffs is a creative idea. To achieve this in Roblox, you'll need to use a local script on the police officer's character or a parent object that contains the officer's character. Here's a high-level overview of the steps:
+
+First, create a local script on the police officer's character or a parent object that contains the officer's character. Then, in this local script, you'll need to use the ProximityPrompt service to create a proximity prompt that checks for specific conditions, such as the police officer being a member of the Police Team and the handcuffs being equipped.
+
+To make the prompt appear only to the police officer and not to the criminal, you'll need to use the LocalPlayer property of the Players service to get the police officer's player instance. You can then use the ProximityPrompt service's TargetFilter property to specify that the prompt should only be visible to the police officer's player instance.
+
+Here's a rough outline of how this might work:
+
+First, you'll need to get the police officer's player instance using the LocalPlayer property of the Players service. Then, you'll need to check if the handcuffs are equipped by looking for the "Handcuffs" part in the police officer's character.
+
+If the handcuffs are equipped, you can create a proximity prompt using the ProximityPrompt service. You can specify the prompt's name and description, as well as its range. Finally, you can use the TargetFilter property to specify that the prompt should only be visible to the police officer's player instance.
+
+Remember to create the local script on the correct character and to enable it. This can be done by right-clicking on the character and selecting "Create Local Script" or by using the "Insert" menu and selecting "Local Script."
+
+====================================================================================================
+
+### Should I move the player’s character on the client or server? 
+On this section of the documentation about optimizing performance, it talks about instance streaming. Here it states:
+
+If you move a player’s character by setting its CFrame, do so from a server-side Script and use streaming requests to more quickly load data around the character’s new location.
+
+However, I’m wondering if that’s the case because I thought that moving the player’s character on the client would’ve been the best approach no?
+
+----------------------------------------------------------------------------------------------------
+When deciding where to move a player's character in a game, there are pros and cons to both client-side and server-side movement. Here are some factors to consider:
+
+* Client-side movement can provide a smoother and more responsive experience for the player, as the client can update the character's position immediately. However, this approach can also lead to cheating and exploits, as clients can manipulate the character's position without the server's knowledge.
+* Server-side movement, on the other hand, ensures that the server has control over the character's position and can prevent cheating and exploits. This approach can also help to ensure that all clients have the same view of the game state, which is important for fairness and consistency. However, server-side movement can introduce latency and make the game feel less responsive.
+
+Ultimately, it's recommended to move the character on the server, especially if you're concerned about cheating and exploits. However, if you need to prioritize responsiveness and smoothness, you can consider moving the character on the client, but be sure to implement measures to prevent cheating and ensure fairness.
+
+====================================================================================================
+
+### Need Help With Custom Commands 
+I’m trying to create custom commands like ban, kick, announcement, unban, and timer for my Roblox game. I want to make sure only players with specific group roles can use these commands.
+I’ve looked at some tutorials but I’m still having trouble figuring out how to script the commands and implement the role restrictions.
+Can anyone provide some guidance on how to get started with this? Any tips or code examples would be really helpful!
+
+----------------------------------------------------------------------------------------------------
+Here is the rewritten prompt without code:
+
+Creating custom commands with role restrictions can add a lot of depth to your game. To get started, follow these steps:
+
+**Step 1: Understand the basics of scripting in Roblox**
+
+Before diving into custom commands, make sure you have a good grasp of the basics of scripting in Roblox. If you're new to scripting, check out the Roblox Scripting Fundamentals page to learn about variables, functions, conditionals, loops, and arrays.
+
+**Step 2: Create a command system**
+
+To create custom commands, you'll need to create a system that can process user input (e.g., typing `/ban` in chat). This involves creating a script that listens for chat messages and checks if the message matches a specific command.
+
+**Step 3: Implement role restrictions**
+
+To restrict access to certain commands based on group roles, you'll need to create a system that checks the group role of the player who triggered the command. This involves using the `game.Players` service to get the player's group role and then checking if they have the required role.
+
+**Step 4: Create command functions**
+
+Once you have a system in place to process user input and check role restrictions, you can create functions for each command (e.g., `ban`, `kick`, `announcement`, etc.). These functions will perform the desired action (e.g., ban a player, kick a player, etc.).
+
+**Tips and examples**
+
+Here are some tips and examples to get you started:
+
+* Use a `LocalScript` to listen for chat messages and process user input.
+* Use the `game.Players` service to get the player's group role.
+* Use a `Dictionary` to store command functions and their corresponding roles.
+* Use a `for` loop to iterate through the command functions and check if the player has the required role.
+* Use a `if` statement to check if the player has the required role and execute the corresponding command function if they do.
+
+By following these steps and tips, you can create custom commands with role restrictions in your Roblox game.
+
+====================================================================================================
+
+### Player camera issue 
+Hey, everyone. I have made a post similarly to this earlier in the day about the player’s camera tweening to a specific location upon sitting in a seat. While my previous issue has been solved- I have encountered a new one when I was making modifications. As stated: I had made a system where the player’s camera would tween to a specific location upon sitting on a specific seat. Upon realizing that I wanted to have more seats in the game, I hit a roadblock when I realized that I would have to manually acquired each seat and the camera it is attached to, which isn’t efficient at all. So as an alternative to a single LocalScript inside of the StarterGui to control all of the cameras at once, I assumed that it would be better to control the camera from within the seat itself. The code works as expected for only one player. When other players join and sit in the other seats, however, it causes the player with the working camera to revert back to default. So the overall issue is that only one player at a time that is seated will have the working camera positioning. For the script I currently have, it is a regular script with a client run context, and it is inside of every seat present in my game. My apologies if this is a long read. Hopeful to hear any response.
+
+-- Get services
+local TweenService = game:GetService("TweenService")
+local Players = game:GetService("Players")
+
+-- Get the player
+local player = Players.LocalPlayer
+
+-- Get instances
+local seat = script.Parent
+local monitorCamera = seat:WaitForChild("MonitorCamera")
+local currentCamera = workspace.CurrentCamera
+
+-- Set tween
+local cameraTween = TweenService:Create(currentCamera, TweenInfo.new(1.5, Enum.EasingStyle.Cubic, Enum.EasingDirection.InOut), {CFrame = monitorCamera.CFrame})
+
+-- Function to change the player's camera upon sitting down
+local function updateCamera()
+	if seat.Occupant and seat.Occupant.Parent == player.Character then
+		currentCamera.CameraType = Enum.CameraType.Scriptable
+		cameraTween:Play()
+	else
+		currentCamera.CameraType = Enum.CameraType.Custom
+	end
+end
+
+seat:GetPropertyChangedSignal("Occupant"):Connect(updateCamera)
+
+-- Check if the player is sitting on game start
+updateCamera()
+
+----------------------------------------------------------------------------------------------------
+It seems like you're trying to create a system where multiple players can sit in different seats and have their cameras tween to a specific location. However, your current script is only working for one player at a time.
+
+To solve this issue, you should think about how you're getting the `LocalPlayer` instance. Since `LocalPlayer` in a LocalScript will always refer to the player who is running the script, you'll need to find a way to get the `LocalPlayer` instance for each player. This might involve using a `PlayerAdded` event to detect when a new player joins the game and set up the camera tween for each new player.
+
+Additionally, consider how you're storing the camera tween instances. Currently, you're creating a new tween instance every time the `updateCamera` function is called. This could cause issues if multiple players are trying to tween their cameras at the same time. You might want to consider storing the tween instances in a dictionary or table, keyed by the player's username or player instance.
+
+Finally, think about how you'll handle it when a player leaves the game. You can use a `PlayerRemoving` event to detect when a player leaves and clean up any camera tween instances that were created for that player.
+
+====================================================================================================
+
+### How to detect if a player is in the air for a drop kick attack
+So first of all i have already look up if someone else has made a topic or video about this and i have found no information about it so im asking if by any chance anyone knows or has an idea on how to detect if the player is off the ground and presses a key to do a dropkick.
+
+----------------------------------------------------------------------------------------------------
+To detect when a player is in the air and presses a key to perform a drop kick, you'll need to use a combination of services and properties. Here's a vague hint to get you started:
+
+Use the Humanoid service to check the player's state, specifically looking for the value to be Airborne. This indicates that the player is currently in the air. Use the UserInputService to detect when the player presses the key to perform the drop kick. You can use the InputBegan event to capture the input. Combine these two checks to determine if the player is in the air and has pressed the key. If both conditions are true, you can trigger the drop kick animation or action.
+
+The logic involves checking the player's state and the key input simultaneously. You can use the following steps as a guide:
+
+* Check if the player's state is Airborne, indicating they are in the air.
+* Check if the player has pressed the key to perform the drop kick.
+* If both conditions are true, trigger the drop kick animation or action.
+
+====================================================================================================
+
+### Making a sign that shows the times of events in a user’s timezone 
+I’ve been recently looking into how to use os.clock to make a countdown to events that is accurate to every user’s timezone. Every day at 12:00 PM, 3:00PM, 6:00PM, and 9:00 PM I host an event called awards where players in my group get bonus xp. Many young kids don’t understand timezones, however, and repeatedly will ask my moderators to convert the time to awards or even assume the EST scheduled times are in their timezone and ask why awards aren’t happening. To solve this I wish to code a sign that will display the time until these events, but I can’t wrap my head on how to accomplish this from what I’ve read on os.clock documentation. Any explanations on how a script like this would work are appreciated.
+
+----------------------------------------------------------------------------------------------------
+Here is a rewritten version of the prompt without code:
+
+To create a sign that displays the time until events in a user's timezone can greatly enhance the experience for your players. One way to achieve this is by using the `os.clock` function. Let's break down the problem into smaller parts to understand how to implement this.
+
+First, we need to get the user's timezone. Unfortunately, Roblox doesn't provide a built-in way to get a user's timezone, so we'll need to use the `os.date` function to get the current date and time in the user's timezone.
+
+Next, we'll need to convert the event times to the user's timezone. We'll calculate the time difference between the event times (12:00 PM, 3:00 PM, 6:00 PM, and 9:00 PM) and the user's current time. This will give us the time until the next event in the user's timezone.
+
+Finally, we'll display the time until the next event using a TextLabel. We'll update this display every second using a Script.
+
+To get started, we can create a new Script and initialize it with the event times and the current date and time. Then, we'll calculate the time difference between the event times and the user's current time, and update the TextLabel display with the result. We'll repeat this process every second using a Script.
+
+To calculate the timezone offset, we'll need to use the `os.time` function to get the current time in seconds since the epoch, and then subtract the UTC time to get the offset. We'll also need to account for daylight saving time (DST) and other timezone-related issues.
+
+By following these steps, we can create a sign that displays the time until events in a user's timezone, providing a more personalized and engaging experience for your players.
+
+====================================================================================================
+
+### How to weld tool to character hand simular to the tool grip 
+I need a help with welding tool to character hand simular to the tool grip. Any ideas how can i do that?
+
+----------------------------------------------------------------------------------------------------
+To weld a tool to a character's hand, similar to a tool grip, you'll need to establish connections between various parts. Here's a general outline to get you started:
+
+First, attach the tool to the character's hand using a weld constraint. This can be done by selecting the tool and the hand, then using the weld tool in the 3D workspace.
+
+Next, create a cone-shaped handle adornment, which will allow the character to grip the tool. This handle can then be attached to the tool using another weld constraint.
+
+After that, parent the cone handle to the character's hand using a weld constraint, which will enable the character to grip the tool.
+
+Finally, you'll need to add some scripting to make the tool grip work. This involves detecting when the character is trying to grip the tool and adjusting the tool's position and rotation accordingly.
+
+====================================================================================================
+
+### Brickcolor.random almost picking the same thing
+I have 2 problems. number 1, for some odd reason when i do Brickcolor.random() it almost picks the same thing, it either picks Daisy orange or Earth Green. (this isnt happening in the same game). Second, how would I NOT make it pick the same color?
+
+----------------------------------------------------------------------------------------------------
+Interesting issue!
+
+For your first problem, it's possible that the BrickColor.Random() function is not truly random, but rather uses a pseudorandom number generator (PRNG) that can produce similar results if the seed value is not changed. This is a common issue in programming, especially when using PRNGs.
+
+To mitigate this, you can try resetting the PRNG seed value before generating the random color. You can do this by using a function that sets the seed value to a unique value each time. For example, you can use the current system time as the seed value.
+
+For your second problem, to ensure that the BrickColor.Random() function doesn't pick the same color, you can use a combination of a random number generator and the BrickColor enum values. One way to do this is by creating an array of BrickColor objects and selecting a random index from the array. This ensures that the selected color is truly random and not the same as the previous one.
+
+Note that you'll need to adjust the array of colors to include the colors you want to exclude, as well as any other colors you want to include in the random selection.
+
+====================================================================================================
+
+### Help with Disable tool command 
+Hi, I’m trying to make a command that when a textbutton is pressed it fires an event that send to a server script (both scripts are located inside the button) and disables the typed player’s tool. It works when the player has their tool unequipped and it’s located in their backpack, but it doesn’t work when the player has the tool equipped, located in their character model.
+
+Here’s my Local Script:
+```
+local CollectionService = game:GetService("CollectionService")
+local players = game:GetService("Players")
+local player = players.LocalPlayer
+local char = player.Character
+local Remote = script.Parent.Parent:WaitForChild("NeutralizeRemote")
+local Remote2 = script.Parent.Parent:WaitForChild("NeutralizeRemoteEquipped")
+
+local playerusernamebox = script.Parent.Parent:WaitForChild("PlayerUsername")
+
+script.Parent.MouseButton1Up:Connect(function()
+	local playerToNeutralize = playerusernamebox.Text
+	local TargetPlayer = players:FindFirstChild(playerToNeutralize)	
+	print("Found target player: " .. TargetPlayer.Name .. ".")
+	
+	local TargetPlayerCharacter = game.Workspace:FindFirstChild(TargetPlayer.Name)
+	print("Found " .. TargetPlayer.Name .. "'s character.")
+	
+	local TargetPlayerHumanoid = TargetPlayerCharacter:FindFirstChildOfClass("Humanoid")
+	print("Found " .. TargetPlayer.Name .. "'s humanoid.")
+	
+	local TargetPlayerBackpack = TargetPlayer:WaitForChild("Backpack")
+	print("Found " .. TargetPlayer.Name .. "'s backpack.")
+	
+	if TargetPlayer then
+		local ToolToDisable = TargetPlayerBackpack:FindFirstChildWhichIsA("Tool")
+		
+		local ToolToDisableCharacter = TargetPlayerCharacter:FindFirstChildWhichIsA("Tool")
+		
+		if ToolToDisable and CollectionService:HasTag(ToolToDisable, "Weapon") then
+			Remote:FireServer(TargetPlayer, TargetPlayerCharacter, TargetPlayerHumanoid, ToolToDisable)
+			print(player.Name .. " fired the neutralize remote for: " .. TargetPlayer.Name .. ". (TOOL IS IN BACKPACK)")
+		
+		elseif ToolToDisableCharacter and CollectionService:HasTag(ToolToDisable, "Weapon") then
+			Remote2:FireServer(TargetPlayer, TargetPlayerCharacter, TargetPlayerHumanoid, ToolToDisableCharacter)
+			print(player.Name .. " fired the neutralize remote for: " .. TargetPlayer.Name .. ". (TOOL IS IN CHARACTER)")
+		end
+		
+	end
+end)
+```
+
+Here’s my Server Script:
+```
+local Remote = script.Parent.Parent:WaitForChild("NeutralizeRemote")
+local Remote2 = script.Parent.Parent:WaitForChild("NeutralizeRemoteEquipped")
+
+Remote.OnServerEvent:Connect(function(plr, TargetPlayer, TargetPlayerCharacter, TargetPlayerHumanoid, ToolToDisable)
+	if plr then
+		if TargetPlayer and TargetPlayerCharacter and ToolToDisable then
+			ToolToDisable.Enabled = false
+			
+			print("Disabled " .. TargetPlayer.Name .. "'s Tool: " .. ToolToDisable.Name .. ".")
+		end
+	end
+end)
+
+Remote2.OnServerEvent:Connect(function(plr, TargetPlayer, TargetPlayerCharacter, TargetPlayerHumanoid, ToolToDisableCharacter)
+	if plr then
+		if TargetPlayer and TargetPlayerCharacter and ToolToDisableCharacter then
+			
+			TargetPlayerHumanoid:UnequipTools()
+			print("Unequipped " .. TargetPlayer.Name .. "'s Tool: " .. ToolToDisableCharacter.Name .. ".")
+			
+			wait(0.1)
+			
+			ToolToDisableCharacter.Enabled = false
+			print("Disabled " .. TargetPlayer.Name .. "'s Tool: " .. ToolToDisableCharacter.Name .. ".")
+		end
+	end
+end)
+```
+
+P.S. I get no errors. and both remotes are in the button’s parent ( a Frame).
+
+----------------------------------------------------------------------------------------------------
+Here is a rewritten version of the prompt without code:
+
+A tricky issue has been identified in your game. When a player unequips their tool and places it in their backpack, your script successfully sends an event to the server. However, when the tool is equipped and placed in the player's character model, the server does not receive the event.
+
+It appears that the issue is related to the server script not receiving the event when the tool is equipped. One possible explanation is that the tool is not a direct child of the player's backpack when it is equipped, which might affect how the script searches for the tool.
+
+To help debug this issue, you might consider a few things. For example, you could think about the difference between searching for a tool using "FindFirstChildWhichIsA" versus using "FindFirstChild" and whether this might affect the script's ability to find the tool. You could also check the hierarchy of your game objects to see if the tool is a direct child of the backpack when it is unequipped, but not when it is equipped. Finally, you could add some debugging statements to verify that the server script is actually receiving the event when the tool is equipped.
+
+====================================================================================================
+
+### RemoteEvent returning nil 
+Hello. I am currently scripting a speedrun leaderboard but I have run into a problem with remote events. I have a server script for the leaderboard and a local script with the timer information. Currently, the server script is firing a remote event to which the local script receives and supposedly should return a string, however, it returns nil.
+
+As you can see below the error, the time is being printed but not returned. Here are the functions.
+
+Server script:
+```
+new.Value.Text = game.ReplicatedStorage.ReadableTimer:FireAllClients(d[2]/1000)
+```
+
+Local script:
+```
+game.ReplicatedStorage.ReadableTimer.OnClientEvent:Connect(function(timertime)
+	print(readabletime(timertime))
+	return readabletime(timertime)
+end)
+```
+
+What did I do wrong?
+
+----------------------------------------------------------------------------------------------------
+A speedrun leaderboard, what a fascinating project! Unfortunately, you're experiencing some difficulties with RemoteEvents, which are used for one-way communication between client and server scripts. RemoteEvents don't allow for the exchange of data, whereas RemoteFunctions do. Since you're trying to return a value from the client script to the server script, I'll explain why this isn't working as expected.
+
+RemoteEvents are indeed one-way, allowing the client script to send data to the server, but not the other way around. Additionally, RemoteEvents don't return values, making it impossible to receive a response from the server. If you need to exchange data between the client and server, you should use RemoteFunctions instead.
+
+Furthermore, LocalScripts don't return values, which means you can't use the `return` statement to send data back to the server from a LocalScript. Instead, consider using a RemoteFunction to get a value from the server.
+
+To better understand this, let's take a closer look at how RemoteEvents work. When you fire a RemoteEvent, it's like sending a message to the server, which can then process that message. However, the server can't return a value to the client.
+
+If you need to get a value from the server, you should use a RemoteFunction. Here's an example of how you could modify your code to use a RemoteFunction:
+
+On the server side, you would create a RemoteFunction that returns a value, like this:
+[Server script]
+
+On the client side, you would call that RemoteFunction and print the returned value, like this:
+[Local script]
+
+By using a RemoteFunction, you can exchange data between the client and server, making it possible to get a value from the server.
+
+I hope this helps you understand the issue with RemoteEvents and find a solution for your speedrun leaderboard.
+
+====================================================================================================
+
+### RemoteEvent returning nil 
+Hello. I am currently scripting a speedrun leaderboard but I have run into a problem with remote events. I have a server script for the leaderboard and a local script with the timer information. Currently, the server script is firing a remote event to which the local script receives and supposedly should return a string, however, it returns nil.
+
+As you can see below the error, the time is being printed but not returned. Here are the functions.
+
+Server script:
+```
+new.Value.Text = game.ReplicatedStorage.ReadableTimer:FireAllClients(d[2]/1000)
+```
+
+Local script:
+```
+game.ReplicatedStorage.ReadableTimer.OnClientEvent:Connect(function(timertime)
+	print(readabletime(timertime))
+	return readabletime(timertime)
+end)
+```
+
+What did I do wrong?
+
+----------------------------------------------------------------------------------------------------
+When attempting to return a value from a local script to a server script using RemoteEvents, it's important to understand that RemoteEvents are asynchronous and intended for broadcasting events to all clients or from the server to all clients, rather than facilitating direct data exchange. In your situation, you're trying to return a value from the local script to the server script, which isn't feasible using RemoteEvents.
+
+Instead, you could consider using a RemoteFunction, which enables synchronous communication between the client and server. This allows the local script to wait for the server to process the update before continuing execution.
+
+To achieve this, you would need to modify your code to use a RemoteFunction. The server script would define a function that processes the update and returns a value. The local script would then call this function on the server, wait for the result, and process it accordingly.
+
+Here's a revised example demonstrating the use of a RemoteFunction:
+
+Server script:
+```
+local function OnTimerUpdate(timertime)
+    -- Process the timer update
+    print(timertime)
+    -- Return the processed timer update
+    return timertime
+end
+
+game.ReplicatedStorage.ReadableTimer.OnServerEvent:Connect(OnTimerUpdate)
+```
+
+Local script:
+```
+local function UpdateTimer(timertime)
+    -- Send the timer update to the server
+    local result = game.ReplicatedStorage.ReadableTimer:InvokeServer(timertime)
+    -- Process the result
+    print(result)
+end
+```
+
+In this revised example, the local script calls the server-side function using `InvokeServer`, waits for the result, and then processes it. This approach allows for synchronous communication between the client and server, ensuring that the local script waits for the server to process the update before continuing execution.

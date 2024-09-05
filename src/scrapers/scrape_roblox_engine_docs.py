@@ -1,6 +1,6 @@
 # === DESCRIPTION ======================================================================================================
 """
-Scrapes https://create.roblox.com/docs/scripting
+Scrapes https://create.roblox.com/docs/reference/engine
 """
 
 # === DEPENDENCIES =====================================================================================================
@@ -19,9 +19,9 @@ import os
 
 
 # === CONSTANTS ========================================================================================================
-INDEX_URL = "https://create.roblox.com/docs/scripting"
+INDEX_URL = "https://create.roblox.com/docs/reference/engine"
 PAGE_LOAD_DELAY = 1
-OUTPUT_DIR = path("data/roblox_docs_dumps")
+OUTPUT_DIR = path("data/roblox_engine_docs_dumps")
 
 
 # === FUNCTIONS ========================================================================================================
@@ -75,7 +75,7 @@ def get_page_urls(
     time.sleep(page_load_delay)
 
     # Select section
-    section = driver.find_elements(By.CSS_SELECTOR, "div.web-blox-css-mui-mix55w")[1]
+    section = driver.find_elements(By.CSS_SELECTOR, "div.web-blox-css-mui-mix55w")[0]
 
     # Expand all sections
     expand_section(
@@ -105,19 +105,21 @@ def dump_page_content(
     :return: dict[str:str]
     """
 
+    # Stop if file exists
+    #if os.path.isfile(output_dir/f"{url.split('/')[-1].strip()}.md"):
+    #    return
+
     # Load page
     driver.get(url)
     time.sleep(page_load_delay)
 
     # Select page content & title
     try:
-        main_content = driver.find_element(By.CSS_SELECTOR, "article.web-blox-css-mui-mix55w")
-        contents = driver.find_element(By.CSS_SELECTOR, "div.web-blox-css-mui-g7ht58").text.replace("\n", "; ")
+        main_content = driver.find_element(By.XPATH, "/html/body/div/div/div/div/div/div[1]/main/div/div/div[3]")
         title = driver.find_element(By.CSS_SELECTOR, "h1.web-blox-css-mui-clml2g").get_attribute("innerHTML").replace("/", "_")
     except:
         try:
-            main_content = driver.find_element(By.CSS_SELECTOR, "article.web-blox-css-mui-mix55w")
-            contents = ""
+            main_content = driver.find_element(By.XPATH, "/html/body/div/div/div/div/div/div[1]/main/div/div/div[3]/div/div/div")
             title = driver.find_element(By.CSS_SELECTOR, "h1.web-blox-css-mui-clml2g").get_attribute("innerHTML").replace("/", "_")
         except:
             print(f"ERROR LOADING PAGE: {url}")
@@ -133,7 +135,6 @@ def dump_page_content(
     # Return params
     return {
         "title": title,
-        "contents": contents
     }
 
 
@@ -167,19 +168,9 @@ if __name__ == "__main__":
     with open(OUTPUT_DIR / "urls.txt", "r") as file:
         urls = [url.strip() for url in file.readlines()]
 
-    # Dump content
-    contents = []
+    # Get pages
     for url in urls:
-        contents.append(dump_page_content(
+        dump_page_content(
             driver=driver,
             url=url
-        ))
-
-    # Save contents
-    with open(OUTPUT_DIR/"contents.json", "w") as file:
-        json.dump(
-            obj={
-                "contents": contents
-            },
-            fp=file
         )
